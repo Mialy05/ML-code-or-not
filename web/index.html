@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Code ve ?</title>
+  </head>
+  <body>
+    <h1 class="title">Suis-je un code ?</h1>
+    <div id="main">
+      <section class="question">
+        <form method="get" id="form">
+          <label for="lang">
+            <p>Saisissez le langage:</p>
+            <ul>
+              <li>Séparez les mots par un ;</li>
+              <li>Ne plus mettre de guillemets</li>
+            </ul>
+          </label>
+          <textarea name="lang" placeholder="Langage ..."></textarea>
+          <input type="submit" value="Demander" />
+        </form>
+      </section>
+      <section class="response">
+        <h2>Prédiction: <span class="pred-div"></span></h2>
+        <small>Model: Random Forest(sur 1000 données de test: [90%;94%[)</small>
+        <h2>Verdict: <span class="true-div"></span></h2>
+        <small>(Sardinas-Patterson)</small>
+      </section>
+    </div>
+
+    <script type="module">
+      const form = document.querySelector("#form");
+      const resDiv = document.querySelector(".response");
+      const predDiv = document.querySelector(".pred-div");
+      const trueDiv = document.querySelector(".true-div");
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+        predDiv.innerHTML = "...";
+        trueDiv.innerHTML = "...";
+
+        fetch(`http://127.0.0.1:5000/predict?lang=${formData.get("lang")}`)
+          .then(async (res) => {
+            const response = await res.json();
+            console.log(response);
+            resDiv.removeAttribute("hidden");
+            let color = "";
+            if (response.pred == 0) {
+              color = "red";
+            } else {
+              color = "green";
+            }
+
+            predDiv.innerHTML = response.pred == 0 ? "Pas code" : "Code";
+            predDiv.className = "pred-div " + color;
+            trueDiv.innerHTML = response.verdict == 0 ? "Pas code" : "Code";
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
+    </script>
+  </body>
+</html>
